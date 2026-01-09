@@ -1,0 +1,69 @@
+{% extends 'personality/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="glass-card p-5 animate__animated animate__fadeInUp">
+            <div class="text-center mb-5">
+                <h1 class="fw-bold mb-2">🧠 Personality AI</h1>
+                <p class="text-white-50">Analyze your behavior patterns</p>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger bg-transparent text-white border-white mb-4">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" action="{% url 'predict' %}" onsubmit="showLoading()">
+                {% csrf_token %}
+
+                <!-- Social Energy -->
+                <div class="mb-4">
+                    <label class="form-label d-flex justify-content-between">
+                        <span>⚡ Social Energy</span>
+                        <span id="se_val" class="fw-bold">5</span>
+                    </label>
+                    {{ form.social_energy }}
+                </div>
+
+                <!-- Talkativeness -->
+                <div class="mb-4">
+                    <label class="form-label d-flex justify-content-between">
+                        <span>🗣️ Talkativeness</span>
+                        <span id="talk_val" class="fw-bold">5</span>
+                    </label>
+                    {{ form.talkativeness }}
+                </div>
+
+                <!-- Party & Books -->
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <label class="form-label">🎉 Likes Parties?</label>
+                        {{ form.likes_party }}
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">📚 Books/Year</label>
+                        {{ form.books_read }}
+                    </div>
+                </div>
+
+                <div class="d-grid mt-5">
+                    <button type="submit"
+                        class="btn btn-glow btn-lg py-3 rounded-pill position-relative overflow-hidden">
+                        <span id="btnText">Analyze Personality</span>
+                        <div id="loader"
+                            class="spinner-border spinner-border-sm text-primary position-absolute top-50 start-50 translate-middle d-none"
+                            role="status"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showLoading() {
+        document.getElementById('btnText').classList.add('invisible');
+        document.getElementById('loader').classList.remove('d-none');
+    }
+</script>
+{% endblock %}

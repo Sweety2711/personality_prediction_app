@@ -1,0 +1,115 @@
+{% extends 'personality/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="glass-card p-5 animate__animated animate__zoomIn">
+
+            <!-- Result Section -->
+            <div class="text-center mb-5">
+                {% if prediction == 'Extrovert' %}
+                <div class="display-1 mb-3 animate__animated animate__bounceIn">🌟</div>
+                <h2 class="display-4 fw-bold">Extrovert</h2>
+                <p class="lead text-white-50">You thrive on social energy!</p>
+                {% else %}
+                <div class="display-1 mb-3 animate__animated animate__bounceIn">🌌</div>
+                <h2 class="display-4 fw-bold">Introvert</h2>
+                <p class="lead text-white-50">You value depth and solitude!</p>
+                {% endif %}
+                <div class="badge bg-white text-dark p-2 rounded-pill mt-3">
+                    Confidence: {{ confidence }}%
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="bg-white rounded-4 p-3 mb-5" style="opacity: 0.9;">
+                <canvas id="myChart" style="max-height: 300px;"></canvas>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-grid gap-2 col-md-6 mx-auto mb-5">
+                <a href="{% url 'home' %}" class="btn btn-outline-light rounded-pill">Analyze Another</a>
+            </div>
+
+            <!-- History Section -->
+            <div class="mt-5 border-top border-white pt-4">
+                <h4 class="mb-4">📜 Recent History</h4>
+                <div class="table-responsive">
+                    <table class="table table-borderless text-white align-middle">
+                        <thead style="border-bottom: 1px solid rgba(255,255,255,0.3)">
+                            <tr>
+                                <th>Result</th>
+                                <th>Energy</th>
+                                <th>Talk</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in history %}
+                            <tr>
+                                <td>
+                                    {% if item.prediction == 'Extrovert' %}🌟{% else %}🌌{% endif %}
+                                    {{ item.prediction }}
+                                </td>
+                                <td>{{ item.social_energy }}/10</td>
+                                <td>{{ item.talkativeness }}/10</td>
+                                <td class="text-white-50 small">{{ item.created_at|date:"M d, H:i" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">No history yet</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('myChart');
+    const social = {{ data.social_energy }};
+    const talk = {{ data.talkativeness }};
+    // Scale books (max 100) to match 0-10 scale roughly input/10
+    const books = {{ data.books_read }} / 10;
+
+    // Convert party (1/0) to 10/0 for chart
+    const party = "{{ data.likes_party }}" === "Yes" ? 8 : 2;
+
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['Social Battery', 'Talkativeness', 'Reading (Scaled)', 'Party Animal'],
+            datasets: [{
+                label: 'Personality Fingerprint',
+                data: [social, talk, books, party],
+                fill: true,
+                backgroundColor: 'rgba(118, 75, 162, 0.4)',
+                borderColor: 'rgb(118, 75, 162)',
+                pointBackgroundColor: 'rgb(75, 40, 120)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(118, 75, 162)'
+            }]
+        },
+        options: {
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(0,0,0,0.1)' },
+                    grid: { color: 'rgba(0,0,0,0.1)' },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
+{% endblock %}
